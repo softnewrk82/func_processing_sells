@@ -292,55 +292,52 @@ def sbis_real_processing(var_day, var_month, var_year, date_from, date_to):
             # _________________________________________________________________________________________________________________________________________________            
             def def_act_vr_set_variable(var_inside_doc_author, var_inside_doc_type):
                 if type(xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]) == dict:
-                    var_quantity = 1  
+                    
+                    var_inside_doc_item_quantity = 1  
             
                     var_inside_doc_author = var_inside_doc_author
                     var_inside_doc_type = var_inside_doc_type
                     var_inside_doc_item_full_doc_price = xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]["@СтоимУчНДС"]
                     
                     var_inside_doc_item_note = ""
+                    var_inside_doc_item_article = ""
+                    var_inside_doc_item_code = ""
+
+
+                    # if type(xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]) == dict:
+
+                    x = xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]
                     
-                    for x in xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]["ИнфПолеОписРабот"]:
-                        if x["@Идентиф"] == "ПоляНоменклатуры":
-                            try:
-                                var_inside_doc_item_article = re.findall(f"\d+\-\d+", x["@Значен"])[0]
-                                var_quantity = re.findall(f'\"\d+\"', x["@Значен"])[0].replace('"', '')
-                                try:
-                                    var_inside_doc_item_quantity = xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]["@Количество"]
-                                except: 
-                                    var_inside_doc_item_quantity = var_quantity
-                                try:
-                                    var_inside_doc_item_price = xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]["@Цена"]
-                                    var_inside_doc_item_full_item_price = float(xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]["@СтоимУчНДС"])
-                                except:              
-                                    var_inside_doc_item_price = xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]["@СтоимУчНДС"]
-                                    var_inside_doc_item_full_item_price = float(xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]["@СтоимУчНДС"])                                            
-                            except:
-                                try:
-                                    var_inside_doc_item_article = re.findall(f"услуга|услуги", x["@Значен"].lower())[0]
-                                    var_quantity = re.findall(f'\"\d+\"', x["@Значен"])[0].replace('"', '')
-                                    try:
-                                        var_inside_doc_item_quantity = xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]["@Количество"]
-                                    except: 
-                                        var_inside_doc_item_quantity = var_quantity
-                                    
-                                    try:
-                                        var_inside_doc_item_price = xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]["@Цена"]
-                                        var_inside_doc_item_full_item_price = float(xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]["@СтоимУчНДС"])
-                                    except:              
-                                        var_inside_doc_item_price = xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]["@СтоимУчНДС"]
-                                        var_inside_doc_item_full_item_price = float(xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]["@СтоимУчНДС"])
-                                except:
-                                    var_inside_doc_item_article = np.nan
-                        elif x["@Идентиф"] == "Примечание":
-                            var_inside_doc_item_note = x["@Значен"]
-            
-                        elif x["@Идентиф"] == "НазваниеПоставщика":
-                            var_inside_doc_item_name = x["@Значен"]
-            
-                        elif x["@Идентиф"] == "КодПоставщика":  
-                            var_inside_doc_item_code =  x["@Значен"]
-            
+                    if type(x["ИнфПолеОписРабот"]) == dict:
+                        if x["ИнфПолеОписРабот"]["@Идентиф"] == "Ид":
+                            var_inside_doc_item_code =  x["ИнфПолеОписРабот"]["@Значен"]
+
+                    elif type(x["ИнфПолеОписРабот"]) == list:
+                        for i_info in range(len(x["ИнфПолеОписРабот"])):
+                            if x["ИнфПолеОписРабот"][i_info]["@Идентиф"] == "Примечание":
+                               var_inside_doc_item_note = x["ИнфПолеОписРабот"][i_info]["@Значен"] 
+                            elif x["ИнфПолеОписРабот"][i_info]["@Идентиф"] == "Ид":
+                               var_inside_doc_item_code = x["ИнфПолеОписРабот"][i_info]["@Значен"] 
+                            elif x["ИнфПолеОписРабот"][i_info]["@Идентиф"] == "Артикул":
+                               var_inside_doc_item_article = x["ИнфПолеОписРабот"][i_info]["@Значен"] 
+                            
+
+                    try:
+                        var_inside_doc_item_full_doc_price = xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]["@СтоимУчНДС"]                    
+                    except: 
+                        var_inside_doc_item_full_doc_price = np.nan
+
+                    
+                    try:
+                        var_inside_doc_item_price = xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]["@Цена"]                    
+                    except: 
+                        var_inside_doc_item_price = np.nan
+
+                    try:
+                        var_inside_doc_item_full_item_price = xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]["@СтоимУчНДС"]                    
+                    except: 
+                        var_inside_doc_item_full_item_price = np.nan
+
                     try:
                         var_inside_doc_item_quantity =  xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]["@Количество"]
                     except: 
@@ -354,36 +351,27 @@ def sbis_real_processing(var_day, var_month, var_year, date_from, date_to):
                     try:
                         var_inside_doc_item_name = xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]["@НаимРабот"]
                     except:
-                        pass
+                        var_inside_doc_item_name = ''
 
                     # _____________________________________________________
                     var_agent = ''
-            
-                    try:
-                        str_agent = xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ИнфПолФХЖ1"]["ТекстИнф"]
-                        for v_agent in str_agent:
-                            if v_agent["@Идентиф"].lower() == 'агент':
-                                    try:
-                                        var_agent = v_agent["@Значен"][2:-2].replace("&quot;", "")
-                                    except:    
-                                        var_agent = v_agent["@Значен"][2:-2]
-                            else:
-                                pass
-                    except:
-                        var_agent = ''
-
-                    # Дата С_________________________________
-
                     var_date_from = ''
-                    try:
-                        str_date_from = xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ИнфПолФХЖ1"]["ТекстИнф"]
-                        for v_date_from in str_date_from:
-                            if v_date_from["@Идентиф"].lower() == 'дата' or v_date_from["@Идентиф"].lower() == 'датас':
-                                var_date_from = v_date_from["@Значен"]
+            
+                    if type(xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ИнфПолФХЖ1"]["ТекстИнф"]) == list:
+                        str_agent = xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ИнфПолФХЖ1"]["ТекстИнф"]
+                        for v_a_d in str_agent:
+                            if v_a_d["@Идентиф"].lower() == 'агент':
+                                    try:
+                                        var_agent = v_a_d["@Значен"].replace("&quot;", "")
+                                    except:    
+                                        var_agent = v_a_d["@Значен"]
+                            
+                            elif v_a_d["@Идентиф"].lower() == 'дата' or v_a_d["@Идентиф"].lower() == 'датас':
+                                    var_date_from = v_a_d["@Значен"]
+                            
                             else:
                                 pass
-                    except:
-                        var_date_from = ''
+
 
                     #_________________________________ 
                     
@@ -405,7 +393,38 @@ def sbis_real_processing(var_day, var_month, var_year, date_from, date_to):
                         var_agent,
                         var_date_from,
                         )
-                        
+
+                    print("DICT")
+                    print("var_doc_type:", var_link)
+                    print("var_doc_type:", var_doc_type)
+                    print("var_doc_number:", var_doc_number)
+                    print("var_doc_full_name:", var_doc_full_name)
+                    print("var_doc_data_main:", var_doc_data_main)
+                    print("var_doc_at_created:", var_doc_at_created)
+                    print("var_doc_counterparty_inn:", var_doc_counterparty_inn)
+                    print("var_doc_counterparty_full_name:", var_doc_counterparty_full_name)
+                    print("var_doc_provider_inn:", var_doc_provider_inn)
+                    print("var_doc_provider_full_name:", var_doc_provider_full_name)
+                    print("var_doc_assigned_manager:", var_doc_assigned_manager)
+                    print("var_doc_department:", var_doc_department)
+                    
+                    print("var_inside_doc_author:", var_inside_doc_author)
+                    print("var_inside_doc_type:", var_inside_doc_type)
+                    print("var_inside_doc_item_full_doc_price:", var_inside_doc_item_full_doc_price)
+                    print("var_inside_doc_item_note:", var_inside_doc_item_note)
+                    print("var_inside_doc_item_code:", var_inside_doc_item_code)
+                    print("var_inside_doc_item_article:", var_inside_doc_item_article)
+                    print("var_inside_doc_item_name:", var_inside_doc_item_name)
+                    print("var_inside_doc_item_quantity:", var_inside_doc_item_quantity)
+                    print("var_inside_doc_item_unit:", var_inside_doc_item_unit)
+                    print("var_inside_doc_item_price:", var_inside_doc_item_price)
+                    print("var_agent:", var_agent)
+                    print("var_date_from:", var_date_from)
+                    print("________________________________________________________________________________")
+
+
+
+                
                 elif type(xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]) == list:
                     
                     sum_inside_doc = 0
@@ -416,32 +435,22 @@ def sbis_real_processing(var_day, var_month, var_year, date_from, date_to):
                         
                     # _____________________________________________________
                     var_agent = ''
-            
-                    try:
-                        str_agent = xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ИнфПолФХЖ1"]["ТекстИнф"]
-                        for v_agent in str_agent:
-                            if v_agent["@Идентиф"].lower() == 'агент':
-                                    try:
-                                        var_agent = v_agent["@Значен"][2:-2].replace("&quot;", "")
-                                    except:    
-                                        var_agent = v_agent["@Значен"][2:-2]
-                            else:
-                                pass
-                    except:
-                        var_agent = ''
-
-                    # Дата С_________________________________
-
                     var_date_from = ''
-                    try:
-                        str_date_from = xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ИнфПолФХЖ1"]["ТекстИнф"]
-                        for v_date_from in str_date_from:
-                            if v_date_from["@Идентиф"].lower() == 'дата' or v_date_from["@Идентиф"].lower() == 'датас':
-                                var_date_from = v_date_from["@Значен"]
+            
+                    if type(xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ИнфПолФХЖ1"]["ТекстИнф"]) == list:
+                        str_agent = xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ИнфПолФХЖ1"]["ТекстИнф"]
+                        for v_a_d in str_agent:
+                            if v_a_d["@Идентиф"].lower() == 'агент':
+                                    try:
+                                        var_agent = v_a_d["@Значен"][2:-2].replace("&quot;", "")
+                                    except:    
+                                        var_agent = v_a_d["@Значен"][2:-2]
+                            
+                            elif v_a_d["@Идентиф"].lower() == 'дата' or v_a_d["@Идентиф"].lower() == 'датас':
+                                    var_date_from = v_a_d["@Значен"]
+                            
                             else:
                                 pass
-                    except:
-                        var_date_from = ''
 
                     #_________________________________ 
                     
@@ -451,66 +460,61 @@ def sbis_real_processing(var_day, var_month, var_year, date_from, date_to):
             
                     for k in xml_a["Файл"]["Документ"]["СвДокПРУ"]["СодФХЖ1"]["ОписРабот"]["Работа"]:
             
-                        var_quantity = 1
+                        var_inside_doc_item_quantity = 1
             
                         var_inside_doc_author = var_inside_doc_author
                         var_inside_doc_type = var_inside_doc_type
                         var_inside_doc_item_full_doc_price = sum_inside_doc
+                    
                         var_inside_doc_item_note = ""
+                        var_inside_doc_item_article = ""
+                        var_inside_doc_item_code = ""
+
+                        
+                        if type(k["ИнфПолеОписРабот"]) == dict:
+                              if k["ИнфПолеОписРабот"]["@Идентиф"] == "Ид":
+                                 var_inside_doc_item_code =  k["ИнфПолеОписРабот"]["@Значен"]
+                        
+                        elif type(k["ИнфПолеОписРабот"]) == list:
+                              for i_info in range(len(k["ИнфПолеОписРабот"])):
+                                 if k["ИнфПолеОписРабот"][i_info]["@Идентиф"] == "Примечание":
+                                    var_inside_doc_item_note = k["ИнфПолеОписРабот"][i_info]["@Значен"] 
+                                 elif k["ИнфПолеОписРабот"][i_info]["@Идентиф"] == "Ид":
+                                    var_inside_doc_item_code = k["ИнфПолеОписРабот"][i_info]["@Значен"] 
+                                 elif k["ИнфПолеОписРабот"][i_info]["@Идентиф"] == "Артикул":
+                                    var_inside_doc_item_article = k["ИнфПолеОписРабот"][i_info]["@Значен"]                          
             
-                        for x in k["ИнфПолеОписРабот"]:
-                            if x["@Идентиф"] == "ПоляНоменклатуры":
-                                try:
-                                    var_inside_doc_item_article = re.findall(f"\d+\-\d+", x["@Значен"])[0]
-                                    var_quantity = re.findall(f'\"\d+\"', x["@Значен"])[0].replace('"', '')                                                
-                                    try:
-                                        var_inside_doc_item_quantity = k["@Количество"]
-                                    except: 
-                                        var_inside_doc_item_quantity = var_quantity
-                                    try:
-                                        var_inside_doc_item_price = k["@Цена"]
-                                        var_inside_doc_item_full_item_price = float(k["@СтоимУчНДС"])
-                                    except:
-                                        var_inside_doc_item_price = k["@СтоимУчНДС"]
-                                        var_inside_doc_item_full_item_price = float(k["@СтоимУчНДС"])   
-                                except:
-                                    try:
-                                        var_inside_doc_item_article = re.findall(f"услуга|услуги", x["@Значен"].lower())[0]
-                                        var_quantity = re.findall(f'\"\d+\"', x["@Значен"])[0].replace('"', '')
-                                        var_inside_doc_item_quantity = var_quantity
-                                        try:
-                                            var_inside_doc_item_quantity = k["@Количество"]
-                                        except: 
-                                            var_inside_doc_item_quantity = var_quantity
-                                
-                                        try:
-                                            var_inside_doc_item_price = k["@Цена"]
-                                            var_inside_doc_item_full_item_price = float(k["@СтоимУчНДС"])
-                                        except:
-                                            var_inside_doc_item_price = k["@СтоимУчНДС"]
-                                            var_inside_doc_item_full_item_price = float(k["@СтоимУчНДС"])
-                                    except:
-                                        var_inside_doc_item_article = np.nan
-                            elif x["@Идентиф"] == "Примечание":
-                                var_inside_doc_item_note = x["@Значен"] 
-                            elif x["@Идентиф"] == "НазваниеПоставщика":
-                                var_inside_doc_item_name = x["@Значен"]
-                            elif x["@Идентиф"] == "КодПоставщика":  
-                                var_inside_doc_item_code =  x["@Значен"]
             
                         try:
-                            var_inside_doc_item_quantity = k["@Количество"]
-                        except:
-                            pass
-                            
+                            var_inside_doc_item_full_doc_price = sum_inside_doc                 
+                        except: 
+                            var_inside_doc_item_full_doc_price = np.nan
+    
+                        
                         try:
-                            var_inside_doc_item_name = k["@НаимРабот"]
-                        except:
+                            var_inside_doc_item_price = k["@Цена"]                    
+                        except: 
+                            var_inside_doc_item_price = np.nan
+    
+                        try:
+                            var_inside_doc_item_full_item_price = k["@СтоимУчНДС"]                    
+                        except: 
+                            var_inside_doc_item_full_item_price = np.nan
+    
+                        try:
+                            var_inside_doc_item_quantity =  k["@Количество"]
+                        except: 
                             pass
+                
                         try:
                             var_inside_doc_item_unit = k["@НаимЕдИзм"]
                         except:
                             var_inside_doc_item_unit = np.nan
+                
+                        try:
+                            var_inside_doc_item_name = k["@НаимРабот"]
+                        except:
+                            var_inside_doc_item_name = ''
             
                         doc_append()
                         inside_doc_append(var_inside_doc_author,
@@ -527,6 +531,36 @@ def sbis_real_processing(var_day, var_month, var_year, date_from, date_to):
                             var_agent,
                             var_date_from,
                             )
+
+                        print("LIST")
+                        print("var_doc_type:", var_link)
+                        print("var_doc_type:", var_doc_type)
+                        print("var_doc_number:", var_doc_number)
+                        print("var_doc_full_name:", var_doc_full_name)
+                        print("var_doc_data_main:", var_doc_data_main)
+                        print("var_doc_at_created:", var_doc_at_created)
+                        print("var_doc_counterparty_inn:", var_doc_counterparty_inn)
+                        print("var_doc_counterparty_full_name:", var_doc_counterparty_full_name)
+                        print("var_doc_provider_inn:", var_doc_provider_inn)
+                        print("var_doc_provider_full_name:", var_doc_provider_full_name)
+                        print("var_doc_assigned_manager:", var_doc_assigned_manager)
+                        print("var_doc_department:", var_doc_department)
+
+                        print("var_inside_doc_author:", var_inside_doc_author)
+                        print("var_inside_doc_type:", var_inside_doc_type)
+                        print("var_inside_doc_item_full_doc_price:", var_inside_doc_item_full_doc_price)
+                        print("var_inside_doc_item_note:", var_inside_doc_item_note)
+                        print("var_inside_doc_item_code:", var_inside_doc_item_code)
+                        print("var_inside_doc_item_article:", var_inside_doc_item_article)
+                        print("var_inside_doc_item_name:", var_inside_doc_item_name)
+                        print("var_inside_doc_item_quantity:", var_inside_doc_item_quantity)
+                        print("var_inside_doc_item_unit:", var_inside_doc_item_unit)
+                        print("var_inside_doc_item_price:", var_inside_doc_item_price)
+                        print("var_agent:", var_agent)
+                        print("var_date_from:", var_date_from)
+                        print("____________________________________")
+                    print("________________________________________________________________________________")
+
             # _________________________________________________________________________________________________________________________________________________            
 
             # def_act_vr_print(var_inside_doc_author, var_inside_doc_type)
@@ -676,7 +710,34 @@ def sbis_real_processing(var_day, var_month, var_year, date_from, date_to):
                         var_agent,
                         var_date_from,
                         )
-                        
+                    print("DICT")
+                    print("var_doc_type:", var_link)
+                    print("var_doc_type:", var_doc_type)
+                    print("var_doc_number:", var_doc_number)
+                    print("var_doc_full_name:", var_doc_full_name)
+                    print("var_doc_data_main:", var_doc_data_main)
+                    print("var_doc_at_created:", var_doc_at_created)
+                    print("var_doc_counterparty_inn:", var_doc_counterparty_inn)
+                    print("var_doc_counterparty_full_name:", var_doc_counterparty_full_name)
+                    print("var_doc_provider_inn:", var_doc_provider_inn)
+                    print("var_doc_provider_full_name:", var_doc_provider_full_name)
+                    print("var_doc_assigned_manager:", var_doc_assigned_manager)
+                    print("var_doc_department:", var_doc_department)
+                    
+                    print("var_inside_doc_author:", var_inside_doc_author)
+                    print("var_inside_doc_type:", var_inside_doc_type)
+                    print("var_inside_doc_item_full_doc_price:", var_inside_doc_item_full_doc_price)
+                    print("var_inside_doc_item_note:", var_inside_doc_item_note)
+                    print("var_inside_doc_item_code:", var_inside_doc_item_code)
+                    print("var_inside_doc_item_article:", var_inside_doc_item_article)
+                    print("var_inside_doc_item_name:", var_inside_doc_item_name)
+                    print("var_inside_doc_item_quantity:", var_inside_doc_item_quantity)
+                    print("var_inside_doc_item_unit:", var_inside_doc_item_unit)
+                    print("var_inside_doc_item_price:", var_inside_doc_item_price)
+                    print("var_agent:", var_agent)
+                    print("var_date_from:", var_date_from)
+                    print("________________________________________________________________________________")
+                    
                 elif type(xml_a["Файл"]["Документ"]["СвДокПТПрКроме"]["СодФХЖ2"]["СвТов"]) == list:
                     
                         sum_inside_doc = 0
@@ -779,6 +840,37 @@ def sbis_real_processing(var_day, var_month, var_year, date_from, date_to):
                                 var_agent,
                                 var_date_from,
                                 )
+
+                            print("LIST")
+                            print("var_doc_type:", var_link)
+                            print("var_doc_type:", var_doc_type)
+                            print("var_doc_number:", var_doc_number)
+                            print("var_doc_full_name:", var_doc_full_name)
+                            print("var_doc_data_main:", var_doc_data_main)
+                            print("var_doc_at_created:", var_doc_at_created)
+                            print("var_doc_counterparty_inn:", var_doc_counterparty_inn)
+                            print("var_doc_counterparty_full_name:", var_doc_counterparty_full_name)
+                            print("var_doc_provider_inn:", var_doc_provider_inn)
+                            print("var_doc_provider_full_name:", var_doc_provider_full_name)
+                            print("var_doc_assigned_manager:", var_doc_assigned_manager)
+                            print("var_doc_department:", var_doc_department)
+    
+                            print("var_inside_doc_author:", var_inside_doc_author)
+                            print("var_inside_doc_type:", var_inside_doc_type)
+                            print("var_inside_doc_item_full_doc_price:", var_inside_doc_item_full_doc_price)
+                            print("var_inside_doc_item_note:", var_inside_doc_item_note)
+                            print("var_inside_doc_item_code:", var_inside_doc_item_code)
+                            print("var_inside_doc_item_article:", var_inside_doc_item_article)
+                            print("var_inside_doc_item_name:", var_inside_doc_item_name)
+                            print("var_inside_doc_item_quantity:", var_inside_doc_item_quantity)
+                            print("var_inside_doc_item_unit:", var_inside_doc_item_unit)
+                            print("var_inside_doc_item_price:", var_inside_doc_item_price)
+                            print("var_agent:", var_agent)
+                            print("var_date_from:", var_date_from)
+                            print("____________________________________")
+                        print("________________________________________________________________________________")
+
+
             # _________________________________________________________________________________________________________________________________________________            
 
             # def_edo_nakl_print(var_inside_doc_author, var_inside_doc_type)
@@ -941,7 +1033,34 @@ def sbis_real_processing(var_day, var_month, var_year, date_from, date_to):
                         var_agent,
                         var_date_from,
                         ) 
-
+                    
+                    print("DICT")
+                    print("var_doc_type:", var_link)
+                    print("var_doc_type:", var_doc_type)
+                    print("var_doc_number:", var_doc_number)
+                    print("var_doc_full_name:", var_doc_full_name)
+                    print("var_doc_data_main:", var_doc_data_main)
+                    print("var_doc_at_created:", var_doc_at_created)
+                    print("var_doc_counterparty_inn:", var_doc_counterparty_inn)
+                    print("var_doc_counterparty_full_name:", var_doc_counterparty_full_name)
+                    print("var_doc_provider_inn:", var_doc_provider_inn)
+                    print("var_doc_provider_full_name:", var_doc_provider_full_name)
+                    print("var_doc_assigned_manager:", var_doc_assigned_manager)
+                    print("var_doc_department:", var_doc_department)
+                    
+                    print("var_inside_doc_author:", var_inside_doc_author)
+                    print("var_inside_doc_type:", var_inside_doc_type)
+                    print("var_inside_doc_item_full_doc_price:", var_inside_doc_item_full_doc_price)
+                    print("var_inside_doc_item_note:", var_inside_doc_item_note)
+                    print("var_inside_doc_item_code:", var_inside_doc_item_code)
+                    print("var_inside_doc_item_article:", var_inside_doc_item_article)
+                    print("var_inside_doc_item_name:", var_inside_doc_item_name)
+                    print("var_inside_doc_item_quantity:", var_inside_doc_item_quantity)
+                    print("var_inside_doc_item_unit:", var_inside_doc_item_unit)
+                    print("var_inside_doc_item_price:", var_inside_doc_item_price)
+                    print("var_agent:", var_agent)
+                    print("var_date_from:", var_date_from)
+                    print("________________________________________________________________________________")
                 
                 elif type(xml_a["Файл"]["Документ"]["Таблица"]["СведТабл"]) == list:      
 
@@ -1035,6 +1154,36 @@ def sbis_real_processing(var_day, var_month, var_year, date_from, date_to):
                             var_agent,
                             var_date_from,
                             ) 
+
+                        print("LIST")
+                        print("var_doc_type:", var_link)
+                        print("var_doc_type:", var_doc_type)
+                        print("var_doc_number:", var_doc_number)
+                        print("var_doc_full_name:", var_doc_full_name)
+                        print("var_doc_data_main:", var_doc_data_main)
+                        print("var_doc_at_created:", var_doc_at_created)
+                        print("var_doc_counterparty_inn:", var_doc_counterparty_inn)
+                        print("var_doc_counterparty_full_name:", var_doc_counterparty_full_name)
+                        print("var_doc_provider_inn:", var_doc_provider_inn)
+                        print("var_doc_provider_full_name:", var_doc_provider_full_name)
+                        print("var_doc_assigned_manager:", var_doc_assigned_manager)
+                        print("var_doc_department:", var_doc_department)
+
+                        print("var_inside_doc_author:", var_inside_doc_author)
+                        print("var_inside_doc_type:", var_inside_doc_type)
+                        print("var_inside_doc_item_full_doc_price:", var_inside_doc_item_full_doc_price)
+                        print("var_inside_doc_item_note:", var_inside_doc_item_note)
+                        print("var_inside_doc_item_code:", var_inside_doc_item_code)
+                        print("var_inside_doc_item_article:", var_inside_doc_item_article)
+                        print("var_inside_doc_item_name:", var_inside_doc_item_name)
+                        print("var_inside_doc_item_quantity:", var_inside_doc_item_quantity)
+                        print("var_inside_doc_item_unit:", var_inside_doc_item_unit)
+                        print("var_inside_doc_item_price:", var_inside_doc_item_price)
+                        print("var_agent:", var_agent)
+                        print("var_date_from:", var_date_from)
+                        print("____________________________________")
+                    print("________________________________________________________________________________")
+        
         
             # _________________________________________________________________________________________________________________________________________________            
 
@@ -1205,7 +1354,35 @@ def sbis_real_processing(var_day, var_month, var_year, date_from, date_to):
                         var_inside_doc_item_full_item_price,
                         var_agent,
                         var_date_from,
-                        )  
+                        ) 
+
+                    print("DICT")
+                    print("var_doc_type:", var_link)
+                    print("var_doc_type:", var_doc_type)
+                    print("var_doc_number:", var_doc_number)
+                    print("var_doc_full_name:", var_doc_full_name)
+                    print("var_doc_data_main:", var_doc_data_main)
+                    print("var_doc_at_created:", var_doc_at_created)
+                    print("var_doc_counterparty_inn:", var_doc_counterparty_inn)
+                    print("var_doc_counterparty_full_name:", var_doc_counterparty_full_name)
+                    print("var_doc_provider_inn:", var_doc_provider_inn)
+                    print("var_doc_provider_full_name:", var_doc_provider_full_name)
+                    print("var_doc_assigned_manager:", var_doc_assigned_manager)
+                    print("var_doc_department:", var_doc_department)
+                    
+                    print("var_inside_doc_author:", var_inside_doc_author)
+                    print("var_inside_doc_type:", var_inside_doc_type)
+                    print("var_inside_doc_item_full_doc_price:", var_inside_doc_item_full_doc_price)
+                    print("var_inside_doc_item_note:", var_inside_doc_item_note)
+                    print("var_inside_doc_item_code:", var_inside_doc_item_code)
+                    print("var_inside_doc_item_article:", var_inside_doc_item_article)
+                    print("var_inside_doc_item_name:", var_inside_doc_item_name)
+                    print("var_inside_doc_item_quantity:", var_inside_doc_item_quantity)
+                    print("var_inside_doc_item_unit:", var_inside_doc_item_unit)
+                    print("var_inside_doc_item_price:", var_inside_doc_item_price)
+                    print("var_agent:", var_agent)
+                    print("var_date_from:", var_date_from)
+                    print("________________________________________________________________________________")    
 
                 elif type(xml_a["Файл"]["Документ"]["ТаблСчФакт"]["СведТов"]) == list:
                 
@@ -1294,6 +1471,38 @@ def sbis_real_processing(var_day, var_month, var_year, date_from, date_to):
                             var_agent,
                             var_date_from,
                             )    
+
+                        print("LIST")
+                        print("var_doc_type:", var_link)
+                        print("var_doc_type:", var_doc_type)
+                        print("var_doc_number:", var_doc_number)
+                        print("var_doc_full_name:", var_doc_full_name)
+                        print("var_doc_data_main:", var_doc_data_main)
+                        print("var_doc_at_created:", var_doc_at_created)
+                        print("var_doc_counterparty_inn:", var_doc_counterparty_inn)
+                        print("var_doc_counterparty_full_name:", var_doc_counterparty_full_name)
+                        print("var_doc_provider_inn:", var_doc_provider_inn)
+                        print("var_doc_provider_full_name:", var_doc_provider_full_name)
+                        print("var_doc_assigned_manager:", var_doc_assigned_manager)
+                        print("var_doc_department:", var_doc_department)
+
+                        print("var_inside_doc_author:", var_inside_doc_author)
+                        print("var_inside_doc_type:", var_inside_doc_type)
+                        print("var_inside_doc_item_full_doc_price:", var_inside_doc_item_full_doc_price)
+                        print("var_inside_doc_item_note:", var_inside_doc_item_note)
+                        print("var_inside_doc_item_code:", var_inside_doc_item_code)
+                        print("var_inside_doc_item_article:", var_inside_doc_item_article)
+                        print("var_inside_doc_item_name:", var_inside_doc_item_name)
+                        print("var_inside_doc_item_quantity:", var_inside_doc_item_quantity)
+                        print("var_inside_doc_item_unit:", var_inside_doc_item_unit)
+                        print("var_inside_doc_item_price:", var_inside_doc_item_price)
+                        print("var_agent:", var_agent)
+                        print("var_date_from:", var_date_from)
+                        print("____________________________________")
+                    print("________________________________________________________________________________")
+
+
+        
             # _________________________________________________________________________________________________________________________________________________            
 
             # def_upd_dop_print(var_inside_doc_author, var_inside_doc_type)
@@ -1456,6 +1665,34 @@ def sbis_real_processing(var_day, var_month, var_year, date_from, date_to):
                         var_date_from,
                         )    
 
+                    print("DICT")
+                    print("var_doc_type:", var_link)
+                    print("var_doc_type:", var_doc_type)
+                    print("var_doc_number:", var_doc_number)
+                    print("var_doc_full_name:", var_doc_full_name)
+                    print("var_doc_data_main:", var_doc_data_main)
+                    print("var_doc_at_created:", var_doc_at_created)
+                    print("var_doc_counterparty_inn:", var_doc_counterparty_inn)
+                    print("var_doc_counterparty_full_name:", var_doc_counterparty_full_name)
+                    print("var_doc_provider_inn:", var_doc_provider_inn)
+                    print("var_doc_provider_full_name:", var_doc_provider_full_name)
+                    print("var_doc_assigned_manager:", var_doc_assigned_manager)
+                    print("var_doc_department:", var_doc_department)
+                    
+                    print("var_inside_doc_author:", var_inside_doc_author)
+                    print("var_inside_doc_type:", var_inside_doc_type)
+                    print("var_inside_doc_item_full_doc_price:", var_inside_doc_item_full_doc_price)
+                    print("var_inside_doc_item_note:", var_inside_doc_item_note)
+                    print("var_inside_doc_item_code:", var_inside_doc_item_code)
+                    print("var_inside_doc_item_article:", var_inside_doc_item_article)
+                    print("var_inside_doc_item_name:", var_inside_doc_item_name)
+                    print("var_inside_doc_item_quantity:", var_inside_doc_item_quantity)
+                    print("var_inside_doc_item_unit:", var_inside_doc_item_unit)
+                    print("var_inside_doc_item_price:", var_inside_doc_item_price)
+                    print("var_agent:", var_agent)
+                    print("var_date_from:", var_date_from)
+                    print("________________________________________________________________________________")
+                
                 elif type(xml_a["Файл"]["Документ"]["ТаблСчФакт"]["СведТов"]) == list:
 
                     sum_inside_doc = 0    
@@ -1535,7 +1772,36 @@ def sbis_real_processing(var_day, var_month, var_year, date_from, date_to):
                             var_inside_doc_item_full_item_price,
                             var_agent,
                             var_date_from,
-                            )      
+                            )
+                        
+                        print("LIST")
+                        print("var_doc_type:", var_link)
+                        print("var_doc_type:", var_doc_type)
+                        print("var_doc_number:", var_doc_number)
+                        print("var_doc_full_name:", var_doc_full_name)
+                        print("var_doc_data_main:", var_doc_data_main)
+                        print("var_doc_at_created:", var_doc_at_created)
+                        print("var_doc_counterparty_inn:", var_doc_counterparty_inn)
+                        print("var_doc_counterparty_full_name:", var_doc_counterparty_full_name)
+                        print("var_doc_provider_inn:", var_doc_provider_inn)
+                        print("var_doc_provider_full_name:", var_doc_provider_full_name)
+                        print("var_doc_assigned_manager:", var_doc_assigned_manager)
+                        print("var_doc_department:", var_doc_department)
+
+                        print("var_inside_doc_author:", var_inside_doc_author)
+                        print("var_inside_doc_type:", var_inside_doc_type)
+                        print("var_inside_doc_item_full_doc_price:", var_inside_doc_item_full_doc_price)
+                        print("var_inside_doc_item_note:", var_inside_doc_item_note)
+                        print("var_inside_doc_item_code:", var_inside_doc_item_code)
+                        print("var_inside_doc_item_article:", var_inside_doc_item_article)
+                        print("var_inside_doc_item_name:", var_inside_doc_item_name)
+                        print("var_inside_doc_item_quantity:", var_inside_doc_item_quantity)
+                        print("var_inside_doc_item_unit:", var_inside_doc_item_unit)
+                        print("var_inside_doc_item_price:", var_inside_doc_item_price)
+                        print("var_agent:", var_agent)
+                        print("var_date_from:", var_date_from)
+                        print("____________________________________")
+                    print("________________________________________________________________________________")
             # _________________________________________________________________________________________________________________________________________________            
 
             # def_upd_s_dop_print(var_inside_doc_author, var_inside_doc_type)
@@ -2124,31 +2390,31 @@ def sbis_real_processing(var_day, var_month, var_year, date_from, date_to):
     )))
 
         
-    my_conn = create_engine(f"postgresql+psycopg2://{var_db_user_name}:{var_db_user_pass}@{var_db_host}:{var_db_port}/{var_db_name}")
-    try: 
-        my_conn.connect()
-        print('my_conn.connect()')
-        my_conn = my_conn.connect()
-        df.to_sql(name=f'{name_unloading}', con=my_conn, if_exists="replace")
-        print("df.sent()")
-        my_conn.close()
-        print("my_conn.close()")
-    except:
-        print('failed')
-        print('my_conn.failed()')        
+    # my_conn = create_engine(f"postgresql+psycopg2://{var_db_user_name}:{var_db_user_pass}@{var_db_host}:{var_db_port}/{var_db_name}")
+    # try: 
+    #     my_conn.connect()
+    #     print('my_conn.connect()')
+    #     my_conn = my_conn.connect()
+    #     df.to_sql(name=f'{name_unloading}', con=my_conn, if_exists="replace")
+    #     print("df.sent()")
+    #     my_conn.close()
+    #     print("my_conn.close()")
+    # except:
+    #     print('failed')
+    #     print('my_conn.failed()')        
             
-    my_conn = create_engine(f"postgresql+psycopg2://{var_db_user_name}:{var_db_user_pass}@{var_db_host}:{var_db_port}/{var_db_name}")
-    try: 
-        my_conn.connect()
-        print('my_conn.connect()')
-        my_conn = my_conn.connect()
-        df_exc.to_sql(name=f'{name_unloading_exc}', con=my_conn, if_exists="replace")
-        print("df_exc.sent()")
-        my_conn.close()
-        print("my_conn.close()")
-    except:
-        print('failed')
-        print('my_conn.failed()') 
+    # my_conn = create_engine(f"postgresql+psycopg2://{var_db_user_name}:{var_db_user_pass}@{var_db_host}:{var_db_port}/{var_db_name}")
+    # try: 
+    #     my_conn.connect()
+    #     print('my_conn.connect()')
+    #     my_conn = my_conn.connect()
+    #     df_exc.to_sql(name=f'{name_unloading_exc}', con=my_conn, if_exists="replace")
+    #     print("df_exc.sent()")
+    #     my_conn.close()
+    #     print("my_conn.close()")
+    # except:
+    #     print('failed')
+    #     print('my_conn.failed()') 
 
 
 # sbis_real_processing('01', '05', '2024', '01.05.2024', '31.05.2024')
